@@ -10,11 +10,12 @@ ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
 const simpleDDP = require("simpleddp");
 const ws = require("isomorphic-ws");
 
-let host = "192.168.0.137"
-let playerId = "app"
+//let host = "192.168.0.137:3000"
+let host = "playmaster.intergestalt.dev"
+let playerId = "audience"
 
 let opts = {
-  endpoint: `ws://${host}:3000/websocket`,
+  endpoint: `wss://${host}/websocket`,
   SocketConstructor: ws,
   reconnectInterval: 5000
 };
