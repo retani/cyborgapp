@@ -1,9 +1,9 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, StatusBar, ScrollView } from 'react-native';
 import { ScreenOrientation } from 'expo';
 import styled from 'styled-components/native'
 
-import { VideoPlayer } from './components/VideoPlayer'
+import { VideoPlayer, URLPlayer, ImagePlayer } from './components/'
 
 ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
 
@@ -64,13 +64,26 @@ export default function App() {
     if (currentMedia) {
       const mediaserver_address = playerData.mediaserver_address
       switch(currentMedia.target) {
-        case "video": player = <VideoPlayer 
-                          url={ "http://" + mediaserver_address + currentMedia.url }
-                          volume={ playerData.volume }
-                          state={ playerData.state }
-                          loop={ Array.isArray(playerData.loop) && playerData.loop.indexOf(currentMedia._id) >= 0 }
-                        />
-                      break;
+        case "video": player = 
+          <VideoPlayer 
+            url={ "http://" + mediaserver_address + currentMedia.url }
+            volume={ playerData.volume }
+            state={ playerData.state }
+            loop={ Array.isArray(playerData.loop) && playerData.loop.indexOf(currentMedia._id) >= 0 }
+          />
+        break;
+        case "iframe": player = 
+          <URLPlayer 
+            url={ currentMedia.url }
+            state={ playerData.state }
+          />
+        break;
+        case "img": player = 
+          <ImagePlayer 
+            url={ currentMedia.url }
+            state={ playerData.state }
+          />
+        break;        
         default: player = <DebugText> *** </DebugText>
       }
     }
@@ -83,17 +96,22 @@ export default function App() {
       />
       <Fullscreen>
         { player }
-      </Fullscreen>      
-      <InfoText>
-        Host: { host }{ "\n" }
-        Player: { playerData && playerData.info + " " }[/{ playerId }]{ "\n" }
-        Status: { !connected && "not "}connected
-      </InfoText>
-      <DebugText>
-        { "\n" } PLAYER { JSON.stringify(playerData) }{ "\n" }
-        { "\n" } GLOBAL { JSON.stringify(globalData) }{ "\n" }
-        { "\n" } MEDIA { JSON.stringify(mediaData) }{ "\n" }
-      </DebugText>
+      </Fullscreen>
+      <Faceplate 
+        show={ playerData && playerData.state === "stop" }
+      />
+      <ScrollView>
+        <InfoText>
+          Host: { host }{ "\n" }
+          Player: { playerData && playerData.info + " " }[/{ playerId }]{ "\n" }
+          Status: { !connected && "not "}connected
+        </InfoText>
+        <DebugText>
+          { "\n" } PLAYER { JSON.stringify(playerData) }{ "\n" }
+          { "\n" } GLOBAL { JSON.stringify(globalData) }{ "\n" }
+          { "\n" } MEDIA { JSON.stringify(mediaData) }{ "\n" }
+        </DebugText>
+      </ScrollView>
     </Container>
   );
 }
@@ -126,3 +144,14 @@ const Fullscreen = styled.View`
   align-items: center;
   justify-content: center;  
 `
+
+const Faceplate = styled.View`
+  display: ${ props => props.show ? 'flex' : 'none' };
+  background-color: #000;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  align-items: center;
+  justify-content: center;  
+`
+
