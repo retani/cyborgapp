@@ -3,8 +3,6 @@ import { Dimensions } from 'react-native';
 import styled from 'styled-components/native'
 import { WebView } from 'react-native-webview';
 
-const {height, width} = Dimensions.get('window');
-
 class ImagePlayer extends PureComponent {
   constructor() {
     super()
@@ -12,6 +10,7 @@ class ImagePlayer extends PureComponent {
   }
 
   render() {
+    const {height, width} = Dimensions.get('window');
     return <WebView
       source={{ uri: this.props.url }}
       style={{ width, height }}

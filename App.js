@@ -91,27 +91,35 @@ export default function App() {
 
   return (
     <Container>
+      
       <StatusBar 
         hidden={true}
       />
+      
       <Fullscreen>
         { player }
       </Fullscreen>
+      
       <Faceplate 
         show={ playerData && playerData.state === "stop" }
       />
-      <ScrollView>
-        <InfoText>
-          Host: { host }{ "\n" }
-          Player: { playerData && playerData.info + " " }[/{ playerId }]{ "\n" }
-          Status: { !connected && "not "}connected
-        </InfoText>
-        <DebugText>
-          { "\n" } PLAYER { JSON.stringify(playerData) }{ "\n" }
-          { "\n" } GLOBAL { JSON.stringify(globalData) }{ "\n" }
-          { "\n" } MEDIA { JSON.stringify(mediaData) }{ "\n" }
-        </DebugText>
-      </ScrollView>
+      
+      <InfoText pointerEvents="none">
+        Host: { host }{ "\n" }
+        Player: { playerData && playerData.info + " " }[/{ playerId }]{ "\n" }
+        Status: { !connected && "not "}connected
+      </InfoText>
+      
+      {/* 
+        <ScrollView>
+          <DebugText pointerEvents="none">
+            { "\n" } PLAYER { JSON.stringify(playerData) }{ "\n" }
+            { "\n" } GLOBAL { JSON.stringify(globalData) }{ "\n" }
+            { "\n" } MEDIA { JSON.stringify(mediaData) }{ "\n" }
+          </DebugText>
+        </ScrollView>
+      */}
+
     </Container>
   );
 }
@@ -125,9 +133,15 @@ const Container = styled.View`
 `
 
 const InfoText = styled.Text`
+  position: absolute;
+  left: 10;
+  top: 10;
   color: #fff;
   text-align: left;
   font-weight: bold;
+  opacity: 0.5;
+  text-shadow-color: rgba(0, 0, 0, 1);
+  text-shadow-radius: 5;
 `
 
 const DebugText = styled.Text`
