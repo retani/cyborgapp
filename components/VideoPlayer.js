@@ -7,6 +7,7 @@ class VideoPlayer extends PureComponent {
   constructor() {
     super()
     this.state = {}
+    this._onPlaybackStatusUpdate = this._onPlaybackStatusUpdate.bind(this)
   }
 
   componentDidUpdate(prevProps) {
@@ -37,6 +38,7 @@ class VideoPlayer extends PureComponent {
   
       if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
         // The player has just finished playing and will stop. Maybe you want to play something else?
+        this.props.onPlayerStateChanged("stop")
       }
   
     }
@@ -47,9 +49,20 @@ class VideoPlayer extends PureComponent {
     //this.playbackObject.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
   }
 
+  loadStart = () => {
+    this.setState({ loading: true })
+  }
+
+  loadEnd = () => {
+    this.setState({ loading: false })
+  }  
+
   render() {
     return <Video
       ref={this._handleVideoRef}
+      onPlaybackStatusUpdate={ this._onPlaybackStatusUpdate }
+      onLoadStart={ this.loadStart }
+      onLoad={ this.loadEnd }
       source={{ uri: this.props.url }}
       rate={1.0}
       volume={ parseFloat(this.props.volume)}

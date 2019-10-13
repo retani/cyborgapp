@@ -20,6 +20,8 @@ let opts = {
   reconnectInterval: 5000
 };
 
+server = new simpleDDP(opts);
+
 export default function App() {
   const [connected, setConnected] = useState(false);
   const [playerData, setPlayerData] = useState({});
@@ -27,8 +29,6 @@ export default function App() {
   const [mediaData, setMediaData] = useState([]);
 
   useEffect(() => {
-
-    server = new simpleDDP(opts);
 
     server.on('connected', () => { setConnected(true); });
     server.on('disconnected', () => { setConnected(false) });
@@ -69,7 +69,8 @@ export default function App() {
             url={ "http://" + mediaserver_address + currentMedia.url }
             volume={ playerData.volume }
             state={ playerData.state }
-            loop={ Array.isArray(playerData.loop) && playerData.loop.indexOf(currentMedia._id) >= 0 }
+            loop={ Array.isArray(playerData.loop) && playerData.loop.indexOf(currentMedia.name) >= 0 }
+            onPlayerStateChanged={ state => server.call('setState', { playerId, state }) }
           />
         break;
         case "iframe": player = 
