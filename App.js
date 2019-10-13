@@ -104,6 +104,12 @@ export default function App() {
       <Faceplate 
         show={ playerData && playerData.state === "stop" }
       />
+
+      <ScreenLabel show={ playerData && playerData.show_labels }>
+        <Label>
+          { playerData && playerData.info }
+          </Label>
+      </ScreenLabel>
       
       <InfoText pointerEvents="none">
         Host: { host }{ "\n" }
@@ -111,7 +117,7 @@ export default function App() {
         Status: { !connected && "not "}connected
       </InfoText>
       
-      {/* 
+      { false && 
         <ScrollView>
           <DebugText pointerEvents="none">
             { "\n" } PLAYER { JSON.stringify(playerData) }{ "\n" }
@@ -119,7 +125,7 @@ export default function App() {
             { "\n" } MEDIA { JSON.stringify(mediaData) }{ "\n" }
           </DebugText>
         </ScrollView>
-      */}
+      }
 
     </Container>
   );
@@ -169,4 +175,20 @@ const Faceplate = styled.View`
   align-items: center;
   justify-content: center;  
 `
+
+const ScreenLabel = styled.View`
+  display: ${ props => props.show ? 'flex' : 'none' };
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  align-items: center;
+  justify-content: center;  
+`
+
+const Label = styled.Text`
+  color: white;
+  font-weight: bold;
+  font-size: 30;
+`
+
 
