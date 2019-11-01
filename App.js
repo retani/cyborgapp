@@ -3,16 +3,38 @@ import { StyleSheet, Text, View, StatusBar, ScrollView } from 'react-native';
 import { ScreenOrientation } from 'expo';
 import styled from 'styled-components/native'
 
-import { VideoPlayer, URLPlayer, ImagePlayer } from './components/'
+import { Settings, VideoPlayer, URLPlayer, ImagePlayer } from './components/'
 
 ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
 
 const simpleDDP = require("simpleddp");
 const ws = require("isomorphic-ws");
 
+const players = [
+  {
+    id: "audience",
+    info: "Audience",
+  },
+  {
+    id: "player1",
+    info: "Player 1",
+  },
+  {
+    id: "player2",
+    info: "Player 2",
+  },
+  {
+    id: "player3",
+    info: "Player 3",
+  },
+  {
+    id: "player4",
+    info: "Player 4",
+  },  
+]
+
 //let host = "192.168.0.137:3000"
 let host = "playmaster.intergestalt.dev"
-let playerId = "audience"
 
 let opts = {
   endpoint: `wss://${host}/websocket`,
@@ -22,11 +44,25 @@ let opts = {
 
 server = new simpleDDP(opts);
 
+
+
 export default function App() {
   const [connected, setConnected] = useState(false);
   const [playerData, setPlayerData] = useState({});
   const [globalData, setGlobalData] = useState({});
   const [mediaData, setMediaData] = useState([]);
+  const [playerId, setPlayerId] = useState(null);
+
+  function sub(playerId) {
+    setPlayerId(playerId)
+    server.subscribe("players",{playerId, noPingback: true})
+    server.collection('players').onChange( newData => {
+      if ( newData.added && newData.added.pingtime || newData.changed && newData.changed.fieldsChanged.pingtime ) {
+        server.call('playerPingback', playerId);
+      }
+      setPlayerData( newData.added || newData.changed.next )
+    });
+  }
 
   useEffect(() => {
 
@@ -40,15 +76,6 @@ export default function App() {
       setGlobalData( Object.fromEntries( newData.map(d => [d.name, d.value]) )  )
     })
     
-    // subscribe to player
-    server.subscribe("players",{playerId, noPingback: true})
-    server.collection('players').onChange( newData => {
-      if ( newData.added && newData.added.pingtime || newData.changed && newData.changed.fieldsChanged.pingtime ) {
-        server.call('playerPingback', playerId);
-      }
-      setPlayerData( newData.added || newData.changed.next )
-    });
-
     // subscribe to media
     server.subscribe("media")
     server.collection('media').reactive().onChange( newData => {
@@ -104,6 +131,10 @@ export default function App() {
       <Faceplate 
         show={ playerData && playerData.state === "stop" }
       />
+
+      { !playerId &&
+        <Settings players={ players } onSetPlayerId={sub} />        
+      }
 
       <ScreenLabel show={ playerData && playerData.show_labels }>
         <Label>
