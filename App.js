@@ -10,50 +10,39 @@ ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
 const simpleDDP = require("simpleddp");
 const ws = require("isomorphic-ws");
 
-const players = [
-  {
-    id: "audience",
-    info: "Audience",
-  },
-  {
-    id: "player1",
-    info: "Player 1",
-  },
-  {
-    id: "player2",
-    info: "Player 2",
-  },
-  {
-    id: "player3",
-    info: "Player 3",
-  },
-  {
-    id: "player4",
-    info: "Player 4",
-  },  
-]
+//let host = {
+//  address: "playmaster.intergestalt.dev",
+//  ssl: true
+//}
 
-//let host = "192.168.0.137:3000"
-let host = "playmaster.intergestalt.dev"
+
+let host = {
+  address: "localhost",
+  port: 3000,
+  ssl: false
+}
+
+console.log(`ws${host.ssl ? "s" : ""}://${host.address}:${host.port}/websocket`)
 
 let opts = {
-  endpoint: `wss://${host}/websocket`,
+  endpoint: `ws${host.ssl ? "s" : ""}://${host.address}${host.port ? ":"+host.port : ""}/websocket`,
   SocketConstructor: ws,
   reconnectInterval: 5000
 };
 
 server = new simpleDDP(opts);
 
-
+let playerIdSubscription = null
 
 export default function App() {
   const [connected, setConnected] = useState(false);
   const [playerData, setPlayerData] = useState({});
+  const [playersMetaData, setPlayersMetaData] = useState([]);
   const [globalData, setGlobalData] = useState({});
   const [mediaData, setMediaData] = useState([]);
   const [playerId, setPlayerId] = useState(null);
 
-  function sub(playerId) {
+  async function sub(playerId) {
     setPlayerId(playerId)
     server.subscribe("players",{playerId, noPingback: true})
     server.collection('players').onChange( newData => {
@@ -67,7 +56,7 @@ export default function App() {
   useEffect(() => {
 
     server.on('connected', () => { setConnected(true); });
-    server.on('disconnected', () => { setConnected(false) });
+    server.on('disconnected', () => { setConnected(false) }); 
 
     // subscribe to globals
     server.subscribe("globals")
@@ -75,7 +64,13 @@ export default function App() {
     globalsReactiveCursor.onChange( newData => {
       setGlobalData( Object.fromEntries( newData.map(d => [d.name, d.value]) )  )
     })
-    
+
+    // subscribe to player meta
+    server.subscribe("playersMeta")
+    server.collection('players').reactive().onChange( newData => {
+      setPlayersMetaData( [...newData] )
+    })     
+
     // subscribe to media
     server.subscribe("media")
     server.collection('media').reactive().onChange( newData => {
@@ -133,7 +128,7 @@ export default function App() {
       />
 
       { !playerId &&
-        <Settings players={ players } onSetPlayerId={sub} />        
+        <Settings players={ playersMetaData } onSetPlayerId={sub} />        
       }
 
       <ScreenLabel show={ playerData && playerData.show_labels }>
@@ -143,7 +138,7 @@ export default function App() {
       </ScreenLabel>
       
       <InfoText pointerEvents="none">
-        Host: { host }{ "\n" }
+        Host: { host.address }{ "\n" }
         Player: { playerData && playerData.info + " " }[/{ playerId }]{ "\n" }
         Status: { !connected && "not "}connected
       </InfoText>
@@ -154,6 +149,7 @@ export default function App() {
             { "\n" } PLAYER { JSON.stringify(playerData) }{ "\n" }
             { "\n" } GLOBAL { JSON.stringify(globalData) }{ "\n" }
             { "\n" } MEDIA { JSON.stringify(mediaData) }{ "\n" }
+            { "\n" } PLAYERMETA { JSON.stringify(playersMetaData) }{ "\n" }
           </DebugText>
         </ScrollView>
       }
