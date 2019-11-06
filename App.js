@@ -170,7 +170,8 @@ export default class App extends PureComponent {
 
         <Trigger 
           onTrigger={ () => this.setState({ showSettings: !this.state.showSettings }) } 
-          visible={this.state.showSettings}
+          opacity={ this.state.showSettings ? 0.8 : 0.2 }
+          text={this.state.showSettings ? "hide" : "show"}
         />
 
         <ScreenLabel show={ playerData && playerData.show_labels }>

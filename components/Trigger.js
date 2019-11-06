@@ -59,14 +59,14 @@ class Trigger extends Component {
 
   render() {
     return <Container
-        visible={this.props.visible}
+         opacity={this.props.opacity}
          active={this.state.active}
          reached={this.state.reached}
          dx={this.state.dx}
          {...this._panResponder.panHandlers}
         >
         <Label reached={this.state.reached}>
-          { this.state.reached ? "OK" : "Hide ➠➠➠" }
+          { this.state.reached ? "OK" : ( this.props.text || "Hide" ) + " ➠➠➠" }
         </Label>
       </Container>
   }
@@ -79,10 +79,10 @@ const Label = styled.Text`
 `
 
 const Container = styled.View`
-  opacity: ${ props => props.visible ? 0.8 : 0 };
+  opacity: ${ props => props.reached ? 0.8 : (props.opacity || 1) };
   background-color: ${ props => props.reached ? "white" : "black"};
-  width: 50;
-  height: 50;
+  width: 60;
+  height: 60;
   left: ${props => props.active ? 12 + props.dx : props.dx };
   bottom: 0;
   position: absolute;
