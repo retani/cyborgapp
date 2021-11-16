@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import { StyleSheet, Text, View, StatusBar, ScrollView, AsyncStorage } from 'react-native';
-import { ScreenOrientation } from 'expo';
+import * as ScreenOrientation from 'expo-screen-orientation'
 import styled from 'styled-components/native'
 
 import { retrieveData, storeData } from './helpers'
