@@ -23,5 +23,9 @@
   "devDependencies": {
     "babel-preset-expo": "^7.0.0"
   },
+  "engines": {
+    "node": "12",
+    "npm": "6"
+  },
   "private": true
 }
